@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { MOODS, MoodId } from "@/components/MoodPicker";
 import TimeCapsuleModal from "@/components/TimeCapsuleModal";
+import WeeklyInsight from "@/components/WeeklyInsight";
 
 type Entry = {
   id: string;
@@ -84,6 +85,8 @@ export default function MemoriesClient() {
 
   return (
     <>
+      <WeeklyInsight />
+
       <div className="flex flex-col gap-6 pb-2">
         {Object.entries(grouped).map(([month, items]) => {
           const [y, m] = month.split("-");

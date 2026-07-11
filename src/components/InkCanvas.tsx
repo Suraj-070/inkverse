@@ -23,6 +23,7 @@ import {
 type Props = {
   pageId: string;
   drawing: boolean; // true = capture input; false = display only
+  svgRef?: React.RefObject<SVGSVGElement | null>; // exposed for OCR snapshot
   onSaveState?: (s: "saving" | "saved" | "error") => void;
 };
 
@@ -47,7 +48,7 @@ function strokePath(s: InkStroke): string {
   return outlineToPath(outline);
 }
 
-export default function InkCanvas({ pageId, drawing, onSaveState }: Props) {
+export default function InkCanvas({ pageId, drawing, svgRef: externalRef, onSaveState }: Props) {
   const [strokes, setStrokes] = useState<InkStroke[]>([]);
   const [current, setCurrent] = useState<InkStroke | null>(null);
   const [tool, setTool] = useState<ToolId | "eraser">("fountain");
@@ -55,7 +56,8 @@ export default function InkCanvas({ pageId, drawing, onSaveState }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [replayT, setReplayT] = useState<number | null>(null); // null = not replaying
 
-  const svgRef = useRef<SVGSVGElement>(null);
+  const internalRef = useRef<SVGSVGElement>(null);
+  const svgRef = (externalRef ?? internalRef) as React.RefObject<SVGSVGElement>;
   const past = useRef<InkStroke[][]>([]);
   const future = useRef<InkStroke[][]>([]);
   const hasPen = useRef(false);
