@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 
-// PATCH /api/entries/:id { body }
+// PATCH (and POST alias for sendBeacon) /api/entries/:id { body }
+export async function POST(
+  req: Request,
+  ctx: { params: Promise<{ id: string }> }
+) {
+  return PATCH(req, ctx);
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
