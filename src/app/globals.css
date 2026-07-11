@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/* ============================================
+   InkVerse design tokens — ink, paper, leather
+   ============================================ */
+@theme {
+  /* Palette */
+  --color-paper: #f6f1e7;        /* aged ivory page */
+  --color-paper-deep: #ece4d4;   /* page edge / shadowed paper */
+  --color-ink: #1c1b18;          /* fountain-pen black */
+  --color-ink-soft: #4a463d;     /* faded ink, secondary text */
+  --color-leather: #5e2a28;      /* oxblood cover */
+  --color-leather-deep: #3f1c1b; /* cover shadow */
+  --color-brass: #a8823c;        /* clasp / ribbon accents */
+  --color-ribbon: #8c3330;       /* bookmark ribbon */
+
+  /* Type */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Spectral", Georgia, serif;
+  --font-ui: ui-sans-serif, system-ui, sans-serif;
+
+  /* Depth */
+  --shadow-page: 0 1px 2px rgb(28 27 24 / 0.08), 0 8px 24px rgb(28 27 24 / 0.1);
+  --shadow-cover: 0 2px 4px rgb(28 27 24 / 0.25), 0 16px 40px rgb(28 27 24 / 0.35);
+
+  /* Radii */
+  --radius-page: 4px;
+  --radius-cover: 12px;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none; /* PWA: stop pull-to-refresh bounce */
+}
+
+/* Subtle paper grain — pure CSS, no image assets */
+.paper {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(rgb(28 27 24 / 0.025) 1px, transparent 1px),
+    radial-gradient(rgb(28 27 24 / 0.018) 1px, transparent 1px);
+  background-size: 3px 3px, 5px 5px;
+  background-position: 0 0, 1px 2px;
+  color: var(--color-ink);
+}
+
+/* Standalone PWA: respect safe areas */
+/* Ruled lines — 28px rhythm, matches textarea line-height */
+.paper-lined {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      rgb(94 42 40 / 0.14) 27px,
+      rgb(94 42 40 / 0.14) 28px
+    ),
+    radial-gradient(rgb(28 27 24 / 0.025) 1px, transparent 1px);
+  background-size: 100% 28px, 3px 3px;
+}
+
+/* 3D stage for page flips */
+.book-stage {
+  perspective: 1600px;
+  transform-style: preserve-3d;
+}
+
+/* Journal textarea — invisible chrome, just ink on paper */
+.ink-area {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 28px;
+  caret-color: var(--color-leather);
+}
+.ink-area::placeholder {
+  color: rgb(74 70 61 / 0.35);
+  font-style: italic;
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
