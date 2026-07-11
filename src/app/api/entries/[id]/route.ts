@@ -23,6 +23,8 @@ export async function PATCH(
 
   const update: Record<string, unknown> = {};
   if (typeof payload.body === "string") update.body = payload.body;
+  const validMoods = ["happy", "calm", "sad", "angry", "tired", "motivated"];
+  if (payload.mood && validMoods.includes(payload.mood)) update.mood = payload.mood;
   if (Object.keys(update).length === 0)
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
 
