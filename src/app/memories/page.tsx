@@ -1,4 +1,5 @@
 import BottomNav from "@/components/BottomNav";
+import MemoriesClient from "@/components/MemoriesClient";
 
 export default function MemoriesPage() {
   return (
@@ -9,17 +10,7 @@ export default function MemoriesPage() {
       >
         Memories
       </h1>
-      <section className="paper flex flex-1 flex-col items-center justify-center rounded-[var(--radius-page)] p-8 text-center shadow-[var(--shadow-page)]">
-        <p
-          className="text-xl text-[var(--color-ink)]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          This page is still blank.
-        </p>
-        <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
-          Your memory timeline arrives in Phase 4.
-        </p>
-      </section>
+      <MemoriesClient />
       <BottomNav />
     </main>
   );

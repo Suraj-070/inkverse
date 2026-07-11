@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 
-// PATCH /api/entries/:id { body }
+// PATCH (and POST alias for sendBeacon) /api/entries/:id { body }
+export async function POST(
+  req: Request,
+  ctx: { params: Promise<{ id: string }> }
+) {
+  return PATCH(req, ctx);
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -16,6 +23,8 @@ export async function PATCH(
 
   const update: Record<string, unknown> = {};
   if (typeof payload.body === "string") update.body = payload.body;
+  const validMoods = ["happy", "calm", "sad", "angry", "tired", "motivated"];
+  if (payload.mood && validMoods.includes(payload.mood)) update.mood = payload.mood;
   if (Object.keys(update).length === 0)
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
 

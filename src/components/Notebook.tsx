@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import InkCanvas from "@/components/InkCanvas";
+import AIPanel from "@/components/AIPanel";
 
 type Entry = {
   id: string;
@@ -43,6 +44,9 @@ export default function Notebook({ userName }: { userName: string }) {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawMode, setDrawMode] = useState(false);
+  const [pageMood, setPageMood] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<Record<string, string>>({});
+  const inkSvgRef = useRef<SVGSVGElement | null>(null);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestBody = useRef<Map<string, string>>(new Map());
@@ -146,6 +150,17 @@ export default function Notebook({ userName }: { userName: string }) {
   };
 
   // ---------- page CRUD ----------
+  const logMood = async (mood: string) => {
+    if (!page?.entry?.id) return;
+    setMenuOpen(false);
+    setPageMood(mood);
+    await fetch(`/api/entries/${page.entry.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mood }),
+    });
+  };
+
   const addPage = async () => {
     if (!notebook) return;
     setMenuOpen(false);
@@ -245,6 +260,17 @@ export default function Notebook({ userName }: { userName: string }) {
               >
                 New page
               </button>
+              <div className="border-t border-[var(--color-ink-soft)]/10 px-4 py-2">
+                <p className="mb-1 text-[10px] uppercase tracking-widest text-[var(--color-ink-soft)]/50">Mood</p>
+                <div className="flex gap-2">
+                  {[["😊","happy"],["🙂","calm"],["😔","sad"],["😡","angry"],["😴","tired"],["🔥","motivated"]].map(([g,id]) => (
+                    <button key={id} onClick={() => logMood(id)}
+                      className={`text-lg transition-transform active:scale-90 ${pageMood === id ? "scale-110" : "opacity-60"}`}>
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <button
                 onClick={deletePage}
                 disabled={pages.length <= 1}
@@ -282,6 +308,7 @@ export default function Notebook({ userName }: { userName: string }) {
             <InkCanvas
               pageId={page.id}
               drawing={drawMode}
+              svgRef={inkSvgRef}
               onSaveState={(st) =>
                 setSaveState(st === "saving" ? "saving" : st === "saved" ? "saved" : "error")
               }
@@ -298,6 +325,13 @@ export default function Notebook({ userName }: { userName: string }) {
               </p>
             </div>
 
+            {transcript[page.id] && (
+              <div className="px-6 pb-1">
+                <p className="text-[10px] uppercase tracking-widest text-[var(--color-ink-soft)]/50 mb-1">✦ Handwriting transcript</p>
+                <p className="text-sm leading-relaxed text-[var(--color-ink-soft)] italic">{transcript[page.id]}</p>
+              </div>
+            )}
+
             <div className="flex-1 px-6 pb-2 pt-3">
               <textarea
                 className="ink-area"
@@ -313,6 +347,16 @@ export default function Notebook({ userName }: { userName: string }) {
                 }
               />
             </div>
+
+            {!drawMode && page.entry && (
+              <AIPanel
+                entryId={page.entry.id}
+                pageId={page.id}
+                hasInk={page.kind === "mixed" || page.kind === "ink"}
+                svgRef={inkSvgRef}
+                onTranscript={(t) => setTranscript((prev) => ({ ...prev, [page.id]: t }))}
+              />
+            )}
 
             <div className={`flex items-center justify-between px-6 pb-3 ${drawMode ? "invisible" : ""}`}>
               <button
